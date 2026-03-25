@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { scrapeWebsite } from "@/services/scraper";
 import { analyzePrivacyData } from "@/services/gemini";
 
+// Increase max execution time to 60 seconds for scraping (Vercel)
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
