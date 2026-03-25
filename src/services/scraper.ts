@@ -1,11 +1,25 @@
-import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+import puppeteer, { Browser } from "puppeteer-core";
 import { TechnicalData } from "../models/PrivacyReport";
 
 export async function scrapeWebsite(url: string): Promise<TechnicalData> {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  const isDev = process.env.NODE_ENV === "development";
+  
+  let browser: Browser;
+  if (isDev) {
+    const localPuppeteer = require("puppeteer");
+    browser = await localPuppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+  } else {
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  }
   
   const page = await browser.newPage();
   let securityHeaders: Record<string, string> = {
